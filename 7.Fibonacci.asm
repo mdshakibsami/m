@@ -1,0 +1,73 @@
+DATA SEGMENT
+    SPACE DB ' $'
+DATA ENDS
+
+CODE SEGMENT
+START:
+    MOV AX, DATA
+    MOV DS, AX
+
+    MOV AX, 0
+    MOV BX, 1
+    MOV CX, 15
+
+FIB_LOOP:
+    PUSH AX
+    PUSH BX
+    PUSH CX
+
+    CALL PRINT_NUM
+
+    MOV AH, 09H
+    LEA DX, SPACE
+    INT 21H
+
+    POP CX
+    POP BX
+    POP AX
+
+    MOV DX, AX
+    ADD DX, BX
+    MOV AX, BX
+    MOV BX, DX
+
+    LOOP FIB_LOOP
+
+    MOV AH, 4CH
+    INT 21H
+
+PRINT_NUM PROC
+    CMP AX, 0
+    JGE POSITIVE_NUM
+    
+    PUSH AX
+    MOV AH, 2
+    MOV DL, '-'
+    INT 21H
+    POP AX
+    NEG AX
+
+POSITIVE_NUM:
+    MOV CX, 0
+    MOV BX, 10
+
+DIV_LOOP:
+    XOR DX, DX
+    DIV BX
+    PUSH DX
+    INC CX
+    CMP AX, 0
+    JNE DIV_LOOP
+
+PRINT_LOOP:
+    POP DX
+    ADD DL, '0'
+    MOV AH, 2
+    INT 21H
+    LOOP PRINT_LOOP
+    
+    RET
+PRINT_NUM ENDP
+
+CODE ENDS
+END START

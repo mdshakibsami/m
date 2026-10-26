@@ -1,0 +1,60 @@
+DATA SEGMENT
+    MSG DB 0DH,0AH,'LARGEST DIGIT = $'
+    ERR DB 0DH,0AH,'INVALID INPUT$'
+DATA ENDS
+
+CODE SEGMENT
+START:
+    MOV AX, DATA
+    MOV DS, AX
+
+    MOV BL, '0'
+    MOV CL, 0
+
+INPUT:
+    MOV AH, 01H
+    INT 21H
+
+    CMP AL, 0DH
+    JE RESULT
+
+    CMP AL, '0'
+    JB ERROR
+    CMP AL, '9'
+    JA ERROR
+
+    INC CL
+
+    CMP AL, BL
+    JBE NEXT
+    MOV BL, AL
+
+NEXT:
+    CMP CL, 3
+    JE RESULT
+    JMP INPUT
+
+RESULT:
+    CMP CL, 0
+    JE ERROR
+
+    MOV AH, 09H
+    LEA DX, MSG
+    INT 21H
+
+    MOV DL, BL
+    MOV AH, 02H
+    INT 21H
+    JMP EXIT
+
+ERROR:
+    MOV AH, 09H
+    LEA DX, ERR
+    INT 21H
+
+EXIT:
+    MOV AH, 4CH
+    INT 21H
+
+CODE ENDS
+END START

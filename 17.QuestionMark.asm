@@ -1,0 +1,12 @@
+CODE SEGMENT
+START:
+    MOV DL, '?'
+
+    MOV AH, 02H
+    INT 21H
+
+    MOV AH, 4CH
+    INT 21H
+
+CODE ENDS
+END START

@@ -1,0 +1,22 @@
+CODE SEGMENT
+    MOV AH, 01H
+    INT 21H
+
+    CMP AL, 'y'
+    JE PRINT
+
+    CMP AL, 'Y'
+    JE PRINT
+
+    JMP EXIT
+
+PRINT:
+    MOV DL, AL
+    MOV AH, 02H
+    INT 21H
+
+EXIT:
+    MOV AH, 4CH
+    INT 21H
+CODE ENDS
+END

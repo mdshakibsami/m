@@ -1,0 +1,117 @@
+DATA SEGMENT
+    MSG1 DB 0DH,0AH,'Enter first number: $'
+    MSG2 DB 0DH,0AH,'Enter second number: $'
+    MSG_MUL DB 0DH,0AH,'Product: $'
+    MSG_DIV DB 0DH,0AH,'Quotient: $'
+    ERR_ZERO DB 0DH,0AH,'DIVIDED BY ZERO IS NOT ALLOWED.$'
+    NUM1 DW ?
+    NUM2 DW ?
+DATA ENDS
+
+CODE SEGMENT
+START:
+    MOV AX, DATA
+    MOV DS, AX
+
+    MOV AH, 09H
+    LEA DX, MSG1
+    INT 21H
+    CALL READ_NUM
+    MOV NUM1, BX
+
+    MOV AH, 09H
+    LEA DX, MSG2
+    INT 21H
+    CALL READ_NUM
+    MOV NUM2, BX
+
+    MOV AH, 09H
+    LEA DX, MSG_MUL
+    INT 21H
+    MOV AX, NUM1
+    MUL NUM2
+    CALL PRINT_NUM
+
+    CMP NUM2, 0
+    JE ERROR_DIV
+
+    MOV AH, 09H
+    LEA DX, MSG_DIV
+    INT 21H
+    MOV AX, NUM1
+    XOR DX, DX
+    DIV NUM2
+    CALL PRINT_NUM
+    JMP EXIT
+
+ERROR_DIV:
+    MOV AH, 09H
+    LEA DX, ERR_ZERO
+    INT 21H
+
+EXIT:
+    MOV AH, 4CH
+    INT 21H
+
+READ_NUM PROC
+    XOR BX, BX
+    XOR CX, CX
+    MOV CX, 10
+
+READ_LOOP:
+    MOV AH, 1
+    INT 21H
+    CMP AL, 13
+    JE END_READ
+    
+    SUB AL, '0'
+    XOR AH, AH
+    PUSH AX
+    
+    MOV AX, BX
+    MUL CX
+    MOV BX, AX
+    
+    POP AX
+    ADD BX, AX
+    JMP READ_LOOP
+    
+END_READ:
+    RET
+READ_NUM ENDP
+
+PRINT_NUM PROC
+    CMP AX, 0
+    JGE POSITIVE_NUM
+    
+    PUSH AX
+    MOV AH, 2
+    MOV DL, '-'
+    INT 21H
+    POP AX
+    NEG AX
+
+POSITIVE_NUM:
+    MOV CX, 0
+    MOV BX, 10
+
+DIV_LOOP:
+    XOR DX, DX
+    DIV BX
+    PUSH DX
+    INC CX
+    CMP AX, 0
+    JNE DIV_LOOP
+
+PRINT_LOOP:
+    POP DX
+    ADD DL, '0'
+    MOV AH, 2
+    INT 21H
+    LOOP PRINT_LOOP
+    
+    RET
+PRINT_NUM ENDP
+
+CODE ENDS
+END START

@@ -1,0 +1,40 @@
+DATA SEGMENT
+    MSG DB 0DH, 0AH, 'SMALLEST = $'
+DATA ENDS
+
+CODE SEGMENT
+START:
+    MOV AX, DATA
+    MOV DS, AX
+
+    MOV AH, 01H
+    INT 21H
+    MOV BL, AL
+
+INPUT:
+    MOV AH, 01H
+    INT 21H
+
+    CMP AL, 0DH
+    JE EXIT
+
+    CMP AL, BL
+    JAE INPUT
+
+    MOV BL, AL
+    JMP INPUT
+
+EXIT:
+    MOV AH, 09H
+    LEA DX, MSG
+    INT 21H
+
+    MOV DL, BL
+    MOV AH, 02H
+    INT 21H
+
+    MOV AH, 4CH
+    INT 21H
+
+CODE ENDS
+END START
